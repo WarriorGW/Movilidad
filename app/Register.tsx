@@ -25,7 +25,7 @@ export default function LoginScreen() {
     setConfirmPasswordError("");
 
     if (!nombre) {
-      setNombreError("El nombre es requerido.");
+      setNombreError("El nombre es requeridont.");
       valid = false;
     } else if (nombre.length < 8 || nombre.length > 20) {
       setNombreError("El nombre debe tener entre 8 y 20 caracteres.");
