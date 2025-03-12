@@ -1,20 +1,18 @@
-import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { useState } from "react";
+import bcrypt from "bcryptjs";
+import { Redirect } from "expo-router";
 
-export default function LoginScreen() {
+
+
+
+
+const Login = () => {
   const [nombre, setNombre] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
   const [nombreError, setNombreError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     let valid = true;
 
     // Resetear errores
@@ -24,100 +22,56 @@ export default function LoginScreen() {
     if (!nombre) {
       setNombreError("El nombre es requerido.");
       valid = false;
-    } else if (nombre.length < 8 || nombre.length > 20) {
-      setNombreError("El nombre debe tener entre 8 y 20 caracteres.");
-      valid = false;
     }
 
     if (!password) {
       setPasswordError("La contraseña es requerida.");
       valid = false;
-    } else if (password.length < 6 || password.length > 20) {
-      setPasswordError("La contraseña debe tener entre 6 y 20 caracteres.");
-      valid = false;
     }
 
     if (valid) {
-      // Aquí iría tu lógica de login o navegación
-      alert(`Bienvenido, ${nombre}`);
+      // Simulando la recuperación de la contraseña encriptada desde la BD
+      const hashedPasswordFromDB = "contraseña_guardada_en_bd";
+
+      const isMatch = await bcrypt.compare(password, hashedPasswordFromDB);
+
+      if (isMatch) {
+        alert(`Bienvenido, ${nombre}`);
+        
+      } else {
+        alert("Contraseña incorrecta");
+      }
     }
   };
 
+  const handleHashPassword = async () => {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    console.log("Contraseña hasheada:", hashedPassword);
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Iniciar Sesión</Text>
-
-      <TextInput
-        style={styles.input}
+    <div>
+      <h2>Login</h2>
+      <input
+        type="text"
         placeholder="Nombre"
-        placeholderTextColor="#aaa"
         value={nombre}
-        onChangeText={setNombre}
+        onChange={(e) => setNombre(e.target.value)}
       />
-      {nombreError ? <Text style={styles.errorText}>{nombreError}</Text> : null}
-
-      <TextInput
-        style={styles.input}
+      <span>{nombreError}</span>
+      <input
+        type="password"
         placeholder="Contraseña"
-        placeholderTextColor="#aaa"
-        secureTextEntry
         value={password}
-        onChangeText={setPassword}
+        onChange={(e) => setPassword(e.target.value)}
       />
-      {passwordError ? (
-        <Text style={styles.errorText}>{passwordError}</Text>
-      ) : null}
+      <span>{passwordError}</span>
+      <button onClick={handleLogin}>Iniciar Sesión</button>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Ingresar</Text>
-      </TouchableOpacity>
-    </View>
+      <button onClick={handleHashPassword}>Hashear Contraseña</button>
+    </div>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#d9d9d9",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    marginBottom: 30,
-    color: "#333",
-    fontWeight: "bold",
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    marginTop: 5,
-    marginBottom: 5,
-    fontSize: 16,
-    color: "#333",
-  },
-  errorText: {
-    width: "100%",
-    color: "red",
-    marginBottom: 5,
-    fontSize: 14,
-  },
-  button: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#007bff",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-});
+export default Login;

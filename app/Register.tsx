@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import bcrypt from "bcryptjs";
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [nombre, setNombre] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -16,7 +17,7 @@ export default function LoginScreen() {
   const [passwordError, setPasswordError] = useState<string>("");
   const [confirmPasswordError, setConfirmPasswordError] = useState<string>("");
 
-  const handleLogin = () => {
+  const handleRegister = async () => {
     let valid = true;
 
     // Resetear errores
@@ -25,7 +26,7 @@ export default function LoginScreen() {
     setConfirmPasswordError("");
 
     if (!nombre) {
-      setNombreError("El nombre es requeridont.");
+      setNombreError("El nombre es requerido.");
       valid = false;
     } else if (nombre.length < 8 || nombre.length > 20) {
       setNombreError("El nombre debe tener entre 8 y 20 caracteres.");
@@ -46,8 +47,14 @@ export default function LoginScreen() {
     }
 
     if (valid) {
-      // Aquí iría tu lógica de login o navegación
-      alert(`Bienvenido, ${nombre}`);
+      // Encriptar la contraseña antes de enviarla
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      // Aquí mandarías `hashedPassword` a tu base de datos en lugar de `password`
+      console.log("Contraseña encriptada:", hashedPassword);
+
+      alert(`Usuario registrado con éxito`);
     }
   };
 
@@ -88,7 +95,7 @@ export default function LoginScreen() {
         <Text style={styles.errorText}>{confirmPasswordError}</Text>
       ) : null}
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+      <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Crear Cuenta</Text>
       </TouchableOpacity>
     </View>
