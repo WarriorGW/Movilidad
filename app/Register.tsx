@@ -18,43 +18,46 @@ export default function RegisterScreen() {
   const [confirmPasswordError, setConfirmPasswordError] = useState<string>("");
 
   const handleRegister = async () => {
-    let valid = true;
+    try {
+      let valid = true;
 
-    // Resetear errores
-    setNombreError("");
-    setPasswordError("");
-    setConfirmPasswordError("");
+      // Resetear errores
+      setNombreError("");
+      setPasswordError("");
+      setConfirmPasswordError("");
 
-    if (!nombre) {
-      setNombreError("El nombre es requerido.");
-      valid = false;
-    } else if (nombre.length < 8 || nombre.length > 20) {
-      setNombreError("El nombre debe tener entre 8 y 20 caracteres.");
-      valid = false;
-    }
+      if (!nombre) {
+        setNombreError("El nombre es requerido.");
+        valid = false;
+      } else if (nombre.length < 8 || nombre.length > 20) {
+        setNombreError("El nombre debe tener entre 8 y 20 caracteres.");
+        valid = false;
+      }
 
-    if (!password) {
-      setPasswordError("La contraseña es requerida.");
-      valid = false;
-    } else if (password.length < 6 || password.length > 20) {
-      setPasswordError("La contraseña debe tener entre 6 y 20 caracteres.");
-      valid = false;
-    }
+      if (!password) {
+        setPasswordError("La contraseña es requerida.");
+        valid = false;
+      } else if (password.length < 6 || password.length > 20) {
+        setPasswordError("La contraseña debe tener entre 6 y 20 caracteres.");
+        valid = false;
+      }
 
-    if (confirmPassword !== password) {
-      setConfirmPasswordError("Las contraseñas no coinciden.");
-      valid = false;
-    }
+      if (confirmPassword !== password) {
+        setConfirmPasswordError("Las contraseñas no coinciden.");
+        valid = false;
+      }
 
-    if (valid) {
+      if (!valid) return;
+
       // Encriptar la contraseña antes de enviarla
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      // Aquí mandarías `hashedPassword` a tu base de datos en lugar de `password`
       console.log("Contraseña encriptada:", hashedPassword);
-
-      alert(`Usuario registrado con éxito`);
+      alert("Usuario registrado con éxito");
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      alert("Hubo un problema al registrar el usuario. Inténtalo de nuevo.");
     }
   };
 

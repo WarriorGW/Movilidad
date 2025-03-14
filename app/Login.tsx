@@ -1,10 +1,5 @@
 import { useState } from "react";
 import bcrypt from "bcryptjs";
-import { Redirect } from "expo-router";
-
-
-
-
 
 const Login = () => {
   const [nombre, setNombre] = useState<string>("");
@@ -13,23 +8,25 @@ const Login = () => {
   const [passwordError, setPasswordError] = useState<string>("");
 
   const handleLogin = async () => {
-    let valid = true;
+    try {
+      let valid = true;
 
-    // Resetear errores
-    setNombreError("");
-    setPasswordError("");
+      // Resetear errores
+      setNombreError("");
+      setPasswordError("");
 
-    if (!nombre) {
-      setNombreError("El nombre es requerido.");
-      valid = false;
-    }
+      if (!nombre) {
+        setNombreError("El nombre es requerido.");
+        valid = false;
+      }
 
-    if (!password) {
-      setPasswordError("La contraseña es requerida.");
-      valid = false;
-    }
+      if (!password) {
+        setPasswordError("La contraseña es requerida.");
+        valid = false;
+      }
 
-    if (valid) {
+      if (!valid) return;
+
       // Simulando la recuperación de la contraseña encriptada desde la BD
       const hashedPasswordFromDB = "contraseña_guardada_en_bd";
 
@@ -37,17 +34,24 @@ const Login = () => {
 
       if (isMatch) {
         alert(`Bienvenido, ${nombre}`);
-        
       } else {
         alert("Contraseña incorrecta");
       }
+    } catch (error) {
+      console.error("Error en el login:", error);
+      alert("Hubo un problema al iniciar sesión. Inténtalo de nuevo.");
     }
   };
 
   const handleHashPassword = async () => {
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    console.log("Contraseña hasheada:", hashedPassword);
+    try {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      console.log("Contraseña hasheada:", hashedPassword);
+    } catch (error) {
+      console.error("Error al hashear la contraseña:", error);
+      alert("No se pudo generar el hash de la contraseña.");
+    }
   };
 
   return (
