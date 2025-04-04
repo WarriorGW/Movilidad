@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Dimensions, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, Dimensions, TouchableOpacity, Text, Modal } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
-import MapViewDirections from 'react-native-maps-directions';
 import Geolocation from 'react-native-geolocation-service';
+const busStopIcon = require('../../assets/images/bus_stop.png');
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyCjv8TzRvcU3bC5b1gYKYbpP55YQIZ6a_0';
 
@@ -40,6 +40,15 @@ const routeCoordinates = [
   { latitude: 21.95170724991033, longitude: -102.35147731089447 },
 ];
 
+// Información de cada parada (puedes personalizar esto según tus necesidades)
+const busStopInfo = routeCoordinates.map((coord, index) => ({
+  id: index + 1,
+  title: `Parada ${index + 1}`,
+  description: `Rutas: 50`,
+  schedule: 'Horario: 6:00 AM - 10:00 PM',
+  nextBus: '5 minutos',
+  coordinate: coord
+}));
 
 const MapScreen: React.FC = () => {
   const [region, setRegion] = useState({
@@ -48,9 +57,13 @@ const MapScreen: React.FC = () => {
     latitudeDelta: 0.05,
     longitudeDelta: 0.05,
   });
-  
-  const [currentLocation, setCurrentLocation] = useState(null);
+
+  const [currentLocation, setCurrentLocation] = useState<{ latitude: number, longitude: number } | null>(null);
   const [showDirections, setShowDirections] = useState(false);
+  
+  // Nuevo estado para la parada seleccionada y el modal
+  const [selectedStop, setSelectedStop] = useState<any>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const requestLocationPermission = async () => {
@@ -60,7 +73,7 @@ const MapScreen: React.FC = () => {
           Geolocation.getCurrentPosition(
             (position) => {
               const { latitude, longitude } = position.coords;
-              const [currentLocation, setCurrentLocation] = useState<{latitude: number, longitude: number} | null>(null);
+              setCurrentLocation({ latitude, longitude });
               setRegion({ latitude, longitude, latitudeDelta: 0.05, longitudeDelta: 0.05 });
             },
             (error) => console.log(error),
@@ -71,9 +84,15 @@ const MapScreen: React.FC = () => {
         console.warn(err);
       }
     };
-    
+
     requestLocationPermission();
   }, []);
+
+  // Función para manejar el toque en un marcador
+  const handleMarkerPress = (stop: any) => {
+    setSelectedStop(stop);
+    setModalVisible(true);
+  };
 
   return (
     <View style={styles.container}>
@@ -84,13 +103,23 @@ const MapScreen: React.FC = () => {
         showsUserLocation={true}
         showsMyLocationButton={true}
       >
+        {busStopInfo.map((stop) => (
+          <Marker
+            key={stop.id}
+            coordinate={stop.coordinate}
+            title={stop.title}
+            image={busStopIcon}
+            onPress={() => handleMarkerPress(stop)}
+          />
+        ))}
+
         <Polyline
           coordinates={routeCoordinates}
           strokeWidth={4}
           strokeColor="blue"
         />
       </MapView>
-      
+
       <TouchableOpacity
         style={styles.button}
         onPress={() => setShowDirections(!showDirections)}
@@ -99,6 +128,33 @@ const MapScreen: React.FC = () => {
           {showDirections ? 'Ocultar Ruta' : 'Mostrar Ruta'}
         </Text>
       </TouchableOpacity>
+
+      {/* Modal para mostrar información de la parada */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            {selectedStop && (
+              <>
+                <Text style={styles.modalTitle}>{selectedStop.title}</Text>
+                <Text style={styles.modalText}>{selectedStop.description}</Text>
+                <Text style={styles.modalText}>{selectedStop.schedule}</Text>
+                <Text style={styles.modalText}>Próximo bus: {selectedStop.nextBus}</Text>
+              </>
+            )}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -125,6 +181,45 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  closeButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+    padding: 10,
+    elevation: 2,
+    marginTop: 10,
   },
 });
 
