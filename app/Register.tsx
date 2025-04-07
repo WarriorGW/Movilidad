@@ -1,153 +1,44 @@
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import bcrypt from "bcryptjs";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function RegisterScreen() {
-  const [nombre, setNombre] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-
-  const [nombreError, setNombreError] = useState<string>("");
-  const [passwordError, setPasswordError] = useState<string>("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string>("");
-
-  const handleRegister = async () => {
-    try {
-      let valid = true;
-
-      // Resetear errores
-      setNombreError("");
-      setPasswordError("");
-      setConfirmPasswordError("");
-
-      if (!nombre) {
-        setNombreError("El nombre es requerido.");
-        valid = false;
-      } else if (nombre.length < 8 || nombre.length > 20) {
-        setNombreError("El nombre debe tener entre 8 y 20 caracteres.");
-        valid = false;
-      }
-
-      if (!password) {
-        setPasswordError("La contraseña es requerida.");
-        valid = false;
-      } else if (password.length < 6 || password.length > 20) {
-        setPasswordError("La contraseña debe tener entre 6 y 20 caracteres.");
-        valid = false;
-      }
-
-      if (confirmPassword !== password) {
-        setConfirmPasswordError("Las contraseñas no coinciden.");
-        valid = false;
-      }
-
-      if (!valid) return;
-
-      // Encriptar la contraseña antes de enviarla
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-
-      console.log("Contraseña encriptada:", hashedPassword);
-      alert("Usuario registrado con éxito");
-    } catch (error) {
-      console.error("Error en el registro:", error);
-      alert("Hubo un problema al registrar el usuario. Inténtalo de nuevo.");
-    }
-  };
+  const [nombre, setNombre] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Crear Cuenta</Text>
+    <View className="flex-1 justify-center items-center bg-gray-100 p-5">
+      <Text className="text-2xl font-bold text-red-600">Crear Cuenta</Text>
 
       <TextInput
-        style={styles.input}
+        className="w-full bg-white p-3 rounded-md my-2 border border-gray-300"
         placeholder="Nombre"
         placeholderTextColor="#aaa"
         value={nombre}
         onChangeText={setNombre}
       />
-      {nombreError ? <Text style={styles.errorText}>{nombreError}</Text> : null}
 
       <TextInput
-        style={styles.input}
+        className="w-full bg-white p-3 rounded-md my-2 border border-gray-300"
         placeholder="Contraseña"
         placeholderTextColor="#aaa"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
-      {passwordError ? (
-        <Text style={styles.errorText}>{passwordError}</Text>
-      ) : null}
 
       <TextInput
-        style={styles.input}
+        className="w-full bg-white p-3 rounded-md my-2 border border-gray-300"
         placeholder="Confirmar Contraseña"
         placeholderTextColor="#aaa"
         secureTextEntry
         value={confirmPassword}
         onChangeText={setConfirmPassword}
       />
-      {confirmPasswordError ? (
-        <Text style={styles.errorText}>{confirmPasswordError}</Text>
-      ) : null}
 
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Crear Cuenta</Text>
+      <TouchableOpacity className="bg-blue-500 p-3 rounded-md mt-5 w-full items-center">
+        <Text className="text-white text-lg font-bold">Crear Cuenta</Text>
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#d9d9d9",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    marginBottom: 30,
-    color: "#333",
-    fontWeight: "bold",
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    marginTop: 5,
-    marginBottom: 5,
-    fontSize: 16,
-    color: "#333",
-  },
-  errorText: {
-    width: "100%",
-    color: "red",
-    marginBottom: 5,
-    fontSize: 14,
-  },
-  button: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#007bff",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-});
